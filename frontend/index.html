@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinPulse — AI Financial Health Dashboard</title>
+  <meta name="description" content="AI-powered financial health dashboard. Upload statements, get health scores, savings predictions, and personalized budget plans.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ambient Background -->
+  <div class="ambient-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Sidebar Navigation -->
+  <nav id="sidebar" class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="fas fa-heartbeat"></i></div>
+      <span class="brand-text">FinPulse</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" data-section="dashboard"><i class="fas fa-th-large"></i><span>Dashboard</span></a></li>
+      <li><a href="#" class="nav-link" data-section="upload"><i class="fas fa-cloud-upload-alt"></i><span>Upload</span></a></li>
+      <li><a href="#" class="nav-link" data-section="budget"><i class="fas fa-wallet"></i><span>Budget</span></a></li>
+      <li><a href="#" class="nav-link" data-section="goals"><i class="fas fa-bullseye"></i><span>Goals</span></a></li>
+      <li><a href="#" class="nav-link" data-section="insights"><i class="fas fa-brain"></i><span>Insights</span></a></li>
+      <li><a href="#" class="nav-link" data-section="chat"><i class="fas fa-robot"></i><span>AI Coach</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <span class="user-name">My Finances</span>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main id="mainContent" class="main-content">
+    <!-- Header -->
+    <header class="top-header">
+      <button id="menuToggle" class="menu-toggle"><i class="fas fa-bars"></i></button>
+      <div class="header-title">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSubtitle" class="subtitle">Your financial health at a glance</p>
+      </div>
+      <div class="header-actions">
+        <div class="lang-switcher">
+          <span class="lang-switcher-label">🌐</span>
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="hi">हि</button>
+          <button class="lang-btn" data-lang="kn">ಕ</button>
+        </div>
+        <span class="date-display" id="dateDisplay"></span>
+      </div>
+    </header>
+
+    <!-- ===== DASHBOARD SECTION ===== -->
+    <section id="sec-dashboard" class="section active">
+      <!-- Health Score Card -->
+      <div class="hero-score-card">
+        <div class="score-ring-container">
+          <canvas id="healthScoreRing" width="200" height="200"></canvas>
+          <div class="score-center">
+            <span class="score-value" id="healthScoreValue">—</span>
+            <span class="score-label" data-i18n="health_score">Health Score</span>
+          </div>
+        </div>
+        <div class="score-details">
+          <h2 data-i18n="health_overview">Financial Health Overview</h2>
+          <p id="healthSummary" class="health-summary" data-i18n="health_placeholder">Upload your financial data to get your personalized AI health score and insights.</p>
+          <div class="score-badges" id="scoreBadges"></div>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="stats-grid">
+        <div class="stat-card" id="statIncome">
+          <div class="stat-icon income"><i class="fas fa-arrow-down"></i></div>
+          <div class="stat-info">
+            <span class="stat-label" data-i18n="monthly_income">Monthly Income</span>
+            <span class="stat-value" id="totalIncome">₹0</span>
+          </div>
+          <div class="stat-trend up" id="incomeTrend"><i class="fas fa-caret-up"></i> —</div>
+        </div>
+        <div class="stat-card" id="statExpense">
+          <div class="stat-icon expense"><i class="fas fa-arrow-up"></i></div>
+          <div class="stat-info">
+            <span class="stat-label" data-i18n="monthly_expenses">Monthly Expenses</span>
+            <span class="stat-value" id="totalExpenses">₹0</span>
+          </div>
+          <div class="stat-trend down" id="expenseTrend"><i class="fas fa-caret-down"></i> —</div>
+        </div>
+        <div class="stat-card" id="statSavings">
+          <div class="stat-icon savings"><i class="fas fa-piggy-bank"></i></div>
+          <div class="stat-info">
+            <span class="stat-label" data-i18n="net_savings">Net Savings</span>
+            <span class="stat-value" id="totalSavings">₹0</span>
+          </div>
+          <div class="stat-trend" id="savingsTrend"><i class="fas fa-caret-up"></i> —</div>
+        </div>
+        <div class="stat-card" id="statRatio">
+          <div class="stat-icon ratio"><i class="fas fa-percentage"></i></div>
+          <div class="stat-info">
+            <span class="stat-label" data-i18n="savings_rate">Savings Rate</span>
+            <span class="stat-value" id="savingsRate">0%</span>
+          </div>
+          <div class="stat-trend" id="ratioTrend"><i class="fas fa-caret-up"></i> —</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-line"></i> <span data-i18n="chart_income_expense">Income vs Expenses (6 months)</span></h3>
+          <canvas id="incomeExpenseChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fas fa-chart-pie"></i> <span data-i18n="chart_spending">Spending Breakdown</span></h3>
+          <canvas id="spendingPieChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Savings Trajectory -->
+      <div class="chart-card full-width">
+          <h3><i class="fas fa-rocket"></i> <span data-i18n="chart_trajectory">Savings Trajectory Forecast</span></h3>
+        <canvas id="savingsTrajectoryChart"></canvas>
+      </div>
+
+      <!-- Alerts -->
+      <div class="alerts-section">
+        <h3><i class="fas fa-exclamation-triangle"></i> <span data-i18n="ai_alerts">AI Alerts & Flags</span></h3>
+        <div id="alertsList" class="alerts-list">
+          <div class="alert-placeholder" data-i18n="alerts_placeholder">Upload your data to receive AI-powered alerts</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== UPLOAD SECTION ===== -->
+    <section id="sec-upload" class="section">
+      <div class="upload-area">
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <h2 data-i18n="upload_title">Upload Financial Documents</h2>
+          <p data-i18n="upload_desc">Drag & drop your salary slips, bank statements, or expense sheets (CSV/JSON)</p>
+          <button class="btn btn-primary" id="browseBtn" data-i18n="browse_files">Browse Files</button>
+          <input type="file" id="fileInput" accept=".csv,.json,.txt" multiple hidden>
+          <div class="upload-formats">
+            <span><i class="fas fa-file-csv"></i> CSV</span>
+            <span><i class="fas fa-file-code"></i> JSON</span>
+            <span><i class="fas fa-file-alt"></i> TXT</span>
+          </div>
+        </div>
+        <div id="uploadProgress" class="upload-progress hidden">
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <p id="uploadStatus" data-i18n="analysing">Analyzing...</p>
+        </div>
+      </div>
+
+      <!-- Sample Data Option -->
+      <div class="sample-data-card">
+        <div class="sample-icon"><i class="fas fa-flask"></i></div>
+        <h3 data-i18n="try_sample">Try with Sample Data</h3>
+        <p data-i18n="sample_desc">Don't have files ready? Load realistic sample financial data to explore all features.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-secondary" id="loadSampleBtn" data-i18n="load_sample">Load Sample Data</button>
+          <button class="btn btn-secondary" id="previewSampleBtn"><i class="fas fa-eye"></i> Preview Data</button>
+        </div>
+      </div>
+
+      <!-- Upload History -->
+      <div class="upload-history" id="uploadHistory">
+        <h3><i class="fas fa-history"></i> <span data-i18n="upload_history">Upload History</span></h3>
+        <div id="historyList" class="history-list">
+          <p class="empty-state" data-i18n="no_uploads">No uploads yet</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BUDGET SECTION ===== -->
+    <section id="sec-budget" class="section">
+      <div class="budget-header-card">
+        <h2><i class="fas fa-magic"></i> AI-Generated Monthly Budget</h2>
+        <p>Based on your spending patterns, here's your optimized budget allocation</p>
+        <button class="btn btn-primary" id="regenerateBudget"><i class="fas fa-sync-alt"></i> <span data-i18n="regenerate">Regenerate</span></button>
+      </div>
+      <div class="budget-grid" id="budgetGrid">
+        <div class="empty-state-large">
+          <i class="fas fa-wallet"></i>
+          <p>Upload your financial data to generate a personalized budget plan</p>
+        </div>
+      </div>
+      <div class="chart-card full-width">
+          <h3><i class="fas fa-chart-bar"></i> <span data-i18n="budget_vs_actual">Budget vs Actual Spending</span></h3>
+        <canvas id="budgetVsActualChart"></canvas>
+      </div>
+    </section>
+
+    <!-- ===== GOALS SECTION ===== -->
+    <section id="sec-goals" class="section">
+      <div class="goals-header">
+        <h2><i class="fas fa-bullseye"></i> Goal-Based Savings Planner</h2>
+        <p data-i18n="goals_desc">Set your goals and let AI chart the path to achieve them</p>
+      </div>
+
+      <!-- Add Goal Form -->
+      <div class="add-goal-card">
+        <h3><i class="fas fa-plus-circle"></i> Add a New Goal</h3>
+        <div class="goal-form">
+          <div class="form-group">
+            <label data-i18n="goal_name">Goal Name</label>
+            <input type="text" id="goalName" data-i18n="goal_name_ph" data-i18n-attr="placeholder" placeholder="e.g., Buy a laptop, Travel to Goa">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label data-i18n="target_amount">Target Amount (₹)</label>
+              <input type="number" id="goalAmount" placeholder="e.g., 80000">
+            </div>
+            <div class="form-group">
+              <label data-i18n="target_months">Target Months</label>
+              <input type="number" id="goalMonths" placeholder="e.g., 3">
+            </div>
+            <div class="form-group">
+              <label data-i18n="priority">Priority</label>
+              <select id="goalPriority">
+                <option value="high" data-i18n="pri_high">🔴 High</option>
+                <option value="medium" selected data-i18n="pri_med">🟡 Medium</option>
+                <option value="low" data-i18n="pri_low">🟢 Low</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="addGoalBtn"><i class="fas fa-plus"></i> <span data-i18n="add_goal_btn">Add Goal</span></button>
+        </div>
+      </div>
+
+      <!-- Goals List -->
+      <div class="goals-list" id="goalsList">
+        <div class="empty-state-large">
+          <i class="fas fa-bullseye"></i>
+          <p>Add your first financial goal to get started</p>
+        </div>
+      </div>
+
+      <!-- AI Goals Analysis Panel -->
+      <div class="goals-ai-panel" id="goalsAiPanel">
+        <div class="goals-ai-header">
+          <h3><i class="fas fa-brain"></i> AI Goals Analysis &amp; Recommendations</h3>
+          <span id="goalsAiBadge" style="font-size:.78rem;color:var(--text-muted)"></span>
+        </div>
+        <div id="goalsAiContent">
+          <p class="goals-ai-empty">Add goals and load your financial data to receive AI-powered recommendations.</p>
+        </div>
+      </div>
+
+      <!-- Goals Forecast Chart -->
+
+      <div class="chart-card full-width">
+          <h3><i class="fas fa-chart-area"></i> <span data-i18n="goals_forecast">Goals Savings Forecast</span></h3>
+        <canvas id="goalsForecastChart"></canvas>
+      </div>
+    </section>
+
+    <!-- ===== INSIGHTS SECTION ===== -->
+    <section id="sec-insights" class="section">
+      <div class="insights-header">
+        <h2><i class="fas fa-brain"></i> AI-Powered Insights</h2>
+        <p>Deep analysis of your financial patterns and behaviors</p>
+      </div>
+      <div class="insights-grid" id="insightsGrid">
+        <div class="empty-state-large">
+          <i class="fas fa-brain"></i>
+          <p>Upload data to unlock AI insights about your finances</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CHAT SECTION ===== -->
+    <section id="sec-chat" class="section">
+      <div class="chat-container">
+        <div class="chat-header">
+          <div class="chat-avatar"><i class="fas fa-robot"></i></div>
+          <div>
+            <h3>FinPulse AI Coach</h3>
+            <span class="chat-status" data-i18n="chat_online">● Online</span>
+          </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="message bot">
+            <div class="message-avatar"><i class="fas fa-robot"></i></div>
+            <div class="message-bubble">
+              <p>Hey! 👋 I'm your AI financial coach. I can help you with:</p>
+              <ul>
+                <li>📊 Analyzing your spending patterns</li>
+                <li>💰 Creating savings strategies</li>
+                <li>🎯 Tracking your financial goals</li>
+                <li>💡 Personalized financial advice</li>
+              </ul>
+              <p>Upload your data or ask me anything!</p>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <div class="chat-suggestions" id="chatSuggestions">
+            <button class="suggestion-chip" id="chip1" data-i18n="chip1">How's my financial health?</button>
+            <button class="suggestion-chip" id="chip2" data-i18n="chip2">Where am I overspending?</button>
+            <button class="suggestion-chip" id="chip3" data-i18n="chip3">How can I save more?</button>
+            <button class="suggestion-chip" id="chip4" data-i18n="chip4">Create a budget plan</button>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" data-i18n="chat_input_ph" data-i18n-attr="placeholder" placeholder="Ask your AI coach anything...">
+            <button class="btn btn-primary btn-send" id="sendChatBtn"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Preview Sample Data Modal -->
+    <div id="previewModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fas fa-file-code"></i> Sample Data Preview</h2>
+          <button class="close-modal" id="closePreviewBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="previewModalBody">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
